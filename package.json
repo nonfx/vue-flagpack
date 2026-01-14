@@ -1,11 +1,15 @@
 {
-  "name": "vue-flagpack",
-  "description": "Gorgeous flag components for your Vue project.",
-  "version": "1.0.1",
+  "name": "@nonfx/vue-flagpack",
+  "description": "Gorgeous flag components for your Vue 3 and Nuxt 3 project with tree-shaking support.",
+  "version": "2.0.0",
+  "type": "module",
   "author": "Yummygum <info@yummygum.com> (https://yummygum.com)",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Yummygum/vue-flagpack.git"
+  },
+  "publishConfig": {
+    "access": "public"
   },
   "keywords": [
     "vue",
@@ -17,9 +21,21 @@
     "countries"
   ],
   "files": [
-    "dist/*"
+    "dist/*",
+    "src/*"
   ],
   "main": "./dist/vue-flag-rollup.cjs.js",
+  "module": "./dist/vue-flag-rollup.esm.js",
+  "types": "./src/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/vue-flag-rollup.esm.js",
+      "require": "./dist/vue-flag-rollup.cjs.js"
+    },
+    "./nuxt": {
+      "import": "./dist/nuxt.mjs"
+    }
+  },
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/Yummygum/vue-flagpack/issues"
@@ -36,24 +52,20 @@
     "not ie <= 8"
   ],
   "devDependencies": {
-    "babel-core": "^6.26.0",
-    "babel-loader": "^7.1.2",
-    "babel-preset-env": "^1.6.0",
-    "babel-preset-stage-3": "^6.24.1",
-    "copy-webpack-plugin": "^6.0.3",
-    "cross-env": "^5.0.5",
-    "css-loader": "^3.6.0",
-    "file-loader": "^1.1.4",
-    "node-sass": "^4.5.3",
-    "rollup-plugin-commonjs": "^10.0.0",
-    "rollup-plugin-terser": "^7.0.2",
-    "rollup-plugin-vue": "^5.0.0",
-    "sass-loader": "^6.0.6",
-    "vue": "2.5.11",
-    "vue-loader": "13.0.5",
-    "vue-template-compiler": "2.5.11",
-    "webpack": "^4.43.0",
-    "webpack-dev-server": "^3.11.0"
+    "@nuxt/kit": "^3.10.0",
+    "@rollup/plugin-commonjs": "^25.0.0",
+    "@rollup/plugin-node-resolve": "^15.0.0",
+    "@rollup/plugin-terser": "^0.4.4",
+    "@vitejs/plugin-vue": "^5.0.0",
+    "@vue/compiler-sfc": "^3.4.0",
+    "postcss": "^8.4.0",
+    "rollup": "^4.0.0",
+    "rollup-plugin-postcss": "^4.0.2",
+    "rollup-plugin-typescript2": "^0.36.0",
+    "rollup-plugin-vue": "^6.0.0",
+    "sass": "^1.70.0",
+    "typescript": "^5.3.0",
+    "vue": "^3.4.0"
   },
   "authors": [
     {
@@ -73,6 +85,9 @@
     }
   ],
   "dependencies": {
-    "flagpack-core": "^1.0.0"
+    "flagpack-core": "^2.1.0"
+  },
+  "peerDependencies": {
+    "vue": "^3.0.0"
   }
 }

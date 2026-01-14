@@ -9,56 +9,63 @@
       gradient,
       className
     ]">
-    <img :src="imageUrl">
+    <img v-if="flagSvg" :src="flagSvg" alt="flag">
   </div>
 </template>
 
-<script>
-import { isoToCountryCode, imageUrl } from 'flagpack-core'
+<script setup lang="ts">
+import { ref, watch, onMounted } from 'vue'
+import { isoToCountryCode } from 'flagpack-core'
 
-export default {
-  name: 'Flag',
-  computed: {
-    imageUrl () {
-      const url = imageUrl(isoToCountryCode(this.code).toUpperCase(), this.size.toLowerCase())
-      return url
-    }
-  },
-  props: {
-    size: {
-      type: String,
-      default: 'm',
-      validator: value => (
-        ['s', 'm', 'l'].indexOf(value) !== -1
-      ),
-    },
-    code: {
-      type: String,
-      default: '528'
-    },
-    hasDropShadow: {
-      type: Boolean,
-      default: false,
-    },
-    hasBorder: {
-      type: Boolean,
-      default: true
-    },
-    hasBorderRadius: {
-      type: Boolean,
-      default: true,
-    },
-    gradient: {
-      type: String,
-      validator: value => (
-        ['top-down', 'real-linear', 'real-circular'].indexOf(value) !== -1
-      ),
-    },
-    className: {
-      type: String
-    }
-  },
+interface Props {
+  size?: 's' | 'm' | 'l'
+  code?: string
+  hasDropShadow?: boolean
+  hasBorder?: boolean
+  hasBorderRadius?: boolean
+  gradient?: 'top-down' | 'real-linear' | 'real-circular'
+  className?: string
 }
+
+const props = withDefaults(defineProps<Props>(), {
+  size: 'm',
+  code: '528',
+  hasDropShadow: false,
+  hasBorder: true,
+  hasBorderRadius: true,
+  gradient: undefined,
+  className: ''
+})
+
+const flagSvg = ref<string>('')
+
+const loadFlag = async () => {
+  try {
+    const countryCode = isoToCountryCode(props.code).toUpperCase()
+    const sizeKey = props.size.toLowerCase()
+    
+    // Dynamically import the SVG for tree-shaking
+    // This ensures only the flags you use are bundled
+    const svgModule = await import(
+      /* @vite-ignore */
+      `flagpack-core/lib/flags/${sizeKey}/${countryCode}.svg`
+    )
+    
+    flagSvg.value = svgModule.default
+  } catch (error) {
+    console.warn(`Flag not found for code: ${props.code}`, error)
+    flagSvg.value = ''
+  }
+}
+
+// Load flag on mount and when code/size changes
+onMounted(() => {
+  loadFlag()
+})
+
+watch(() => [props.code, props.size], () => {
+  loadFlag()
+})
 </script>
 
 <style scoped lang="scss">

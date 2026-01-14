@@ -1,7 +1,11 @@
 import Flag from './Flag.vue'
+export { isoToCountryCode } from 'flagpack-core'
+export { getFlagUrl, importFlag } from './utils'
 
-module.exports = {
-  install: function install(Vue, options) {
-    Vue.component(options.name || 'vue-flagpack', Flag)
+export { Flag }
+
+export default {
+  install: (app, options = {}) => {
+    app.component(options.name || 'Flag', Flag)
   }
 }

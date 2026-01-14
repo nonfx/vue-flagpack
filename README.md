@@ -21,9 +21,11 @@ Flagpack contains 260+ flag icons to easily use within your code project. Flagpa
     <img src="https://img.shields.io/twitter/follow/flagpack.svg?style=social&label=follow"  />
   </a>
 </p>
-Flagpack for Vue is created using Vue v2.5.11. The Flagpack component has not been tested for compatibility with older version of Vue.
+Flagpack for Vue is now fully compatible with Vue 3 and Nuxt 3! The package has been updated to use Vue 3's Composition API and includes a dedicated Nuxt module for seamless integration.
 
-⚠ Flagpack for Vue has been reported to not work with Vue 3. Adding support for Vue 3 has been added to the future plans of Flagpack for Vue.
+### Tree-Shaking Support
+
+Starting from flagpack-core v2.0.0, vue-flagpack supports **tree-shaking**! This means only the flag SVGs you actually use will be included in your bundle. The Flag component uses dynamic imports to load flag SVGs on-demand, ensuring your bundle stays small and efficient.
 
 ## Installation
 
@@ -32,50 +34,92 @@ npm install vue-flagpack
 ```
 
 ## Usage
-### As a plugin
-```js
-import Vue from 'vue'
-import Flag from 'vue-flagpack'
 
-Vue.use(Flag, {
-  name: 'Flag'
+### Vue 3
+
+#### As a plugin
+```js
+import { createApp } from 'vue'
+import VueFlagpack from 'vue-flagpack'
+
+const app = createApp(App)
+app.use(VueFlagpack, {
+  name: 'Flag' // Optional: default component name
 })
 ```
 
 In your template:
-```jsx
+```vue
 <template>
-  <vue-flagpack code="NL" />
+  <Flag code="NL" size="l" />
 </template>
 ```
 
-### Import straight away
-```js
+#### Direct component import
+```vue
+<script setup>
 import { Flag } from 'vue-flagpack'
+</script>
 
-Vue.component('flag-nl', {
-  components: {
-    Flag
-  },
-  template: `
-    <Flag code="NL" />
-  `
+<template>
+  <Flag code="NL" size="m" has-drop-shadow />
+</template>
+```
+
+### Nuxt 3
+
+Add the module to your `nuxt.config.ts`:
+
+```ts
+export default defineNuxtConfig({
+  modules: [
+    'vue-flagpack/nuxt'
+  ]
 })
 ```
 
-### Via UNPKG network
-```html
-<script src="https://unpkg.com/vue-flagpack@latest/dist/vue-flag-rollup.cjs.js"></script>
-<script>
-const instance = new Vue({
-  el: '#app',
-  components: {
-    'Flag': Flag.Flag
-  },
-})
+Then use the Flag component anywhere in your Nuxt app (auto-imported):
 
-// or
-instance.use(Flag)
+```vue
+<template>
+  <Flag code="NL" size="l" />
+</template>
+```
+
+### Advanced: Direct Flag Import for Static Bundling
+
+For optimal tree-shaking when you know which flags you need at build time, you can use the utility functions:
+
+```vue
+<script setup>
+import { ref, onMounted } from 'vue'
+import { getFlagUrl, isoToCountryCode } from 'vue-flagpack'
+
+const flagUrl = ref('')
+
+onMounted(async () => {
+  // Only the NL flag SVG will be included in your bundle
+  flagUrl.value = await getFlagUrl('NL', 'l')
+})
+</script>
+
+<template>
+  <img v-if="flagUrl" :src="flagUrl" alt="Netherlands flag" />
+</template>
+```
+
+### Via CDN
+```html
+<script src="https://unpkg.com/vue@3"></script>
+<script src="https://unpkg.com/vue-flagpack@latest/dist/vue-flag-rollup.iife.js"></script>
+<script>
+const { createApp } = Vue
+const { default: VueFlagpack, Flag } = VueFlagpack
+
+const app = createApp({
+  components: { Flag }
+})
+app.mount('#app')
 </script>
 ```
 
@@ -86,6 +130,22 @@ instance.use(Flag)
 | name |  String | false | vue-flagpack |
 
 
+
+## How Tree-Shaking Works
+
+Vue-flagpack leverages **dynamic imports** to ensure only the flag SVGs you use are included in your final bundle:
+
+- **Dynamic Loading**: The `Flag` component dynamically imports SVG files at runtime based on the `code` prop
+- **No Bloat**: Unlike v1, all 250+ flags are NOT bundled into your app by default
+- **Optimized Bundles**: Modern bundlers (Vite, Webpack 5, Rollup) will code-split flag SVGs into separate chunks
+- **On-Demand**: Flags are loaded when the component renders, keeping initial bundle size minimal
+
+### Bundle Size Comparison
+
+- **Without tree-shaking (v1.x)**: ~16MB (all flags bundled)
+- **With tree-shaking (v2.x)**: ~4KB base + ~1-2KB per flag used
+
+Example: If your app only uses 5 country flags, your bundle will be ~14KB instead of 16MB!
 
 ## Available component configurations — Props
 
