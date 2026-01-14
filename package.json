@@ -30,6 +30,7 @@
   "types": "./src/index.d.ts",
   "exports": {
     ".": {
+      "types": "./dist/vue-flagpack.d.ts",
       "import": "./dist/vue-flag-rollup.esm.js",
       "require": "./dist/vue-flag-rollup.cjs.js"
     },
@@ -37,12 +38,14 @@
       "import": "./dist/nuxt.mjs"
     },
     "./flags": {
-      "import": "./dist/flags/index.js",
-      "types": "./src/flags/index.ts"
+      "types": "./dist/esm/flags/index.d.ts",
+      "import": "./dist/esm/flags/index.js",
+      "require": "./dist/cjs/flags/index.js"
     },
     "./flags/*": {
-      "import": "./dist/flags/*.js",
-      "types": "./src/flags/*.ts"
+      "types": "./dist/esm/flags/*.d.ts",
+      "import": "./dist/esm/flags/*.js",
+      "require": "./dist/cjs/flags/*.js"
     }
   },
   "license": "MIT",
@@ -74,6 +77,7 @@
     "flagpack-core": "^2.1.0",
     "postcss": "^8.4.0",
     "rollup": "^4.0.0",
+    "rollup-plugin-dts": "^6.3.0",
     "rollup-plugin-postcss": "^4.0.2",
     "rollup-plugin-typescript2": "^0.36.0",
     "rollup-plugin-vue": "^6.0.0",

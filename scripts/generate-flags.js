@@ -84,7 +84,7 @@ for (const code of flagCodes) {
     // Only generate if we have all three sizes
     if (Object.keys(components).length === 3) {
       // Generate component file
-      const componentCode = `import { createFlagComponent } from '../createFlagComponent';
+      const componentCode = `import createFlagComponent from '../createFlagComponent';
 
 const svgSmall = \`${components.small}\`;
 

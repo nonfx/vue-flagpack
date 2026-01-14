@@ -5,6 +5,7 @@ import json from '@rollup/plugin-json'
 import postcss from 'rollup-plugin-postcss'
 import VuePlugin from 'rollup-plugin-vue'
 import typescript from 'rollup-plugin-typescript2'
+import dts from 'rollup-plugin-dts'
 
 const isProduction = process.env.NODE_ENV === 'production'
 
@@ -65,9 +66,26 @@ if (isProduction) {
 }
 
 export default [
-  // Main Vue 3 package
+  // Type declarations for main package (without Flag.vue)
   {
     input: 'src/main.ts',
+    output: [
+      {
+        file: 'dist/vue-flagpack.d.ts',
+        format: 'es',
+      },
+    ],
+    plugins: [
+      dts({
+        compilerOptions: {
+          preserveSymlinks: false,
+        },
+      }),
+    ],
+  },
+  // Main Vue 3 package (with Flag.vue component)
+  {
+    input: 'src/vue-flagpack.ts',
     plugins: vuePlugins,
     external: ['vue'],
     output: [
@@ -101,9 +119,9 @@ export default [
       format: 'esm'
     }
   },
-  // Individual flag components (tree-shakeable)
+  // Individual flag components (tree-shakeable) - ESM with preserveModules
   {
-    input: 'src/flags/index.ts',
+    input: ['src/flags/index.ts', 'src/createFlagComponent.ts', 'src/FlagIcon.ts', 'src/sizeConfig.ts'],
     plugins: [
       ...basePlugins,
       typescript({
@@ -111,18 +129,46 @@ export default [
         tsconfigOverride: {
           compilerOptions: {
             declaration: true,
-            declarationDir: 'dist/flags'
+            declarationDir: 'dist/esm',
+            declarationMap: true
           }
         }
       }),
       ...(isProduction ? [terser()] : [])
     ],
-    external: ['vue', '../createFlagComponent', '../sizeConfig'],
+    external: ['vue'],
     output: {
-      dir: 'dist/flags',
+      dir: 'dist/esm',
       format: 'esm',
       preserveModules: true,
-      preserveModulesRoot: 'src/flags'
+      preserveModulesRoot: 'src',
+      sourcemap: true,
+      exports: 'named'
+    }
+  },
+  // Individual flag components - CJS
+  {
+    input: ['src/flags/index.ts', 'src/createFlagComponent.ts', 'src/FlagIcon.ts', 'src/sizeConfig.ts'],
+    plugins: [
+      ...basePlugins,
+      typescript({
+        check: false,
+        tsconfigOverride: {
+          compilerOptions: {
+            declaration: false
+          }
+        }
+      }),
+      ...(isProduction ? [terser()] : [])
+    ],
+    external: ['vue'],
+    output: {
+      dir: 'dist/cjs',
+      format: 'cjs',
+      preserveModules: true,
+      preserveModulesRoot: 'src',
+      sourcemap: true,
+      exports: 'named'
     }
   }
 ]
