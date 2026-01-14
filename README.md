@@ -42,96 +42,64 @@ The package includes 255 optimized flag components with dynamic imports for auto
 
 ## Usage
 
-### Vue 3
+> 📖 **[Complete Usage Guide](USAGE.md)** - See USAGE.md for detailed examples and all usage patterns
 
-#### As a plugin
+### Quick Start
+
+**Vue 3 - Global Plugin**
 ```js
 import { createApp } from 'vue'
-import VueFlagpack from 'vue-flagpack'
+import VueFlagpack from '@nonfx/vue-flagpack'
 
-const app = createApp(App)
-app.use(VueFlagpack, {
-  name: 'Flag' // Optional: default component name
-})
+createApp(App).use(VueFlagpack).mount('#app')
 ```
 
-In your template:
 ```vue
 <template>
-  <Flag code="NL" size="l" />
+  <Flag code="US" size="m" />
 </template>
 ```
 
-#### Direct component import
+**Vue 3 - Direct Import**
 ```vue
 <script setup>
-import { Flag } from 'vue-flagpack'
+import { Flag } from '@nonfx/vue-flagpack'
 </script>
 
 <template>
-  <Flag code="NL" size="m" has-drop-shadow />
+  <Flag code="US" size="m" has-drop-shadow />
 </template>
 ```
 
-### Nuxt 3
-
-Add the module to your `nuxt.config.ts`:
-
+**Nuxt 3**
 ```ts
+// nuxt.config.ts
 export default defineNuxtConfig({
-  modules: [
-    'vue-flagpack/nuxt'
-  ]
+  modules: ['@nonfx/vue-flagpack/nuxt']
 })
 ```
 
-Then use the Flag component anywhere in your Nuxt app (auto-imported):
-
 ```vue
 <template>
-  <Flag code="NL" size="l" />
+  <Flag code="US" size="m" />
 </template>
 ```
 
-### ISO Code Conversion
-
-The package includes a utility to convert between different ISO code formats:
-
+**All ISO Code Formats**
 ```vue
-<script setup>
-import { isoToCountryCode, isValidIsoCode } from 'vue-flagpack'
-
-// Convert any ISO format to alpha2 (2-letter code)
-console.log(isoToCountryCode('USA'))  // "US"
-console.log(isoToCountryCode('840'))  // "US"
-console.log(isoToCountryCode('US'))   // "US"
-
-// Validate ISO codes
-console.log(isValidIsoCode('USA'))  // true
-console.log(isValidIsoCode('XXX'))  // false
-</script>
-
 <template>
-  <!-- All these work identically -->
   <Flag code="US" />   <!-- alpha2 -->
   <Flag code="USA" />  <!-- alpha3 - auto-converted -->
   <Flag code="840" />  <!-- numeric - auto-converted -->
 </template>
 ```
 
-### Via CDN
-```html
-<script src="https://unpkg.com/vue@3"></script>
-<script src="https://unpkg.com/vue-flagpack@latest/dist/vue-flag-rollup.iife.js"></script>
-<script>
-const { createApp } = Vue
-const { default: VueFlagpack, Flag } = VueFlagpack
+**ISO Utilities**
+```js
+import { isoToCountryCode, isValidIsoCode } from '@nonfx/vue-flagpack'
 
-const app = createApp({
-  components: { Flag }
-})
-app.mount('#app')
-</script>
+isoToCountryCode('USA')  // "US"
+isValidIsoCode('USA')    // true
 ```
 
 ## Available plugin options
