@@ -18,23 +18,6 @@ export interface PluginOptions {
 }
 
 /**
- * Get the flag SVG URL for a given country code and size
- * This uses dynamic imports to enable tree-shaking
- */
-export function getFlagUrl(
-  code: string,
-  size?: 's' | 'm' | 'l'
-): Promise<string>
-
-/**
- * Helper to import a specific flag statically for maximum tree-shaking
- */
-export function importFlag(
-  code: string,
-  size?: 's' | 'm' | 'l'
-): Promise<string>
-
-/**
  * Convert ISO code (alpha2, alpha3, or numeric) to alpha2 country code
  */
 export function isoToCountryCode(code: string): string | undefined
