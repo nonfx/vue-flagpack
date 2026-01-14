@@ -133,27 +133,49 @@ app.mount('#app')
 
 
 
-## How Tree-Shaking Works
+## How Dynamic Loading Works
 
-Vue-flagpack uses **dynamic imports** to ensure only the flag SVGs you use are included in your bundle:
+Vue-flagpack uses **dynamic imports with code-splitting** for efficient flag loading:
 
-- **Automatic Tree-Shaking**: The `Flag` component dynamically imports SVG files based on the `code` prop
-- **No Bloat**: Unlike v1, all 250+ flags are NOT bundled into your app by default
-- **Optimized Bundles**: Modern bundlers (Vite, Webpack 5, Rollup, Nuxt 3) automatically code-split flag SVGs
-- **On-Demand**: Flags are loaded when the component renders, keeping initial bundle size minimal
+- **Dynamic Imports**: The `Flag` component dynamically imports SVG files based on the `code` prop
+- **Code-Splitting**: Modern bundlers (Vite, Webpack 5, Nuxt 3) split flags into separate chunks
+- **Lazy Loading**: Flags are loaded on-demand when the component renders
+- **Cache-Friendly**: Once loaded, flags are cached by the browser
 
-The package includes all flag SVGs in the `src/flags` directory. Your bundler (Vite/Webpack/Nuxt) will analyze the dynamic imports and only include the flags you actually reference in your code.
+### Static vs Dynamic Usage
+
+**Static usage (known at build time):**
+```vue
+<Flag code="NL" size="m" />
+<Flag code="US" size="m" />
+```
+Result: Only NL.svg and US.svg might be bundled (depending on bundler optimization)
+
+**Dynamic usage (refs/computed/props):**
+```vue
+<Flag :code="selectedCountry" size="m" />
+```
+Result: All flags in the `m` size directory (~750 flags) are included as separate chunks, loaded on-demand
+
+**Note:** Because the flag code is determined at runtime, bundlers cannot tree-shake unused flags. However, they are lazy-loaded, so only the flags actually displayed are fetched by the browser.
 
 ### Bundle Size Comparison
 
-- **v1.x (no tree-shaking)**: ~16MB (all flags bundled)
-- **v2.x (with tree-shaking)**: ~5KB base + only flags you use
+- **v1.x**: ~16MB (all flags bundled together)
+- **v2.x**: ~5KB base + flags as separate chunks
 
-Example: If your app uses 5 country flags:
-- Your bundle will be ~5KB (base) + ~10KB (5 flags) = **~15KB total**
-- The other 245+ unused flags are completely excluded from your bundle
+**With static usage (code known at build time):**
+- Your bundle = ~5KB base + ~10KB (5 flags) = **~15KB total**
 
-This is true tree-shaking - only what you use gets bundled!
+**With dynamic usage (code determined at runtime):**
+- Your bundle = ~5KB base + ~17MB (all flags as separate chunks)
+- But only the flags you actually display are loaded by the browser
+- Each flag is ~2-4KB and loaded on-demand
+
+**Recommendation:** For dynamic country selectors with many possible flags, this is optimal because:
+- Users only download the flags they actually see
+- Flags are cached after first load
+- No large initial bundle
 
 ## Available component configurations — Props
 
