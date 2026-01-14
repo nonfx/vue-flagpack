@@ -34,7 +34,8 @@
     },
     "./nuxt": {
       "import": "./dist/nuxt.mjs"
-    }
+    },
+    "./src/flags/*": "./src/flags/*"
   },
   "license": "MIT",
   "bugs": {
