@@ -33,14 +33,22 @@ const FlagIcon: FunctionalComponent<FlagProps & FlagIconProps> = ({
     styles.boxShadow = config.dropShadow;
   }
 
+  // Process SVG content to add proper styling
+  // Insert style attributes into the SVG tag
+  const processedSvgContent = svgContent.replace(
+    /<svg([^>]*)>/,
+    '<svg$1 style="display:block;width:100%;height:100%">'
+  );
+
   // Create inner wrapper for SVG
   const svgWrapper = h('div', {
     style: {
       width: '100%',
       height: '100%',
       display: 'block',
+      lineHeight: '0', // Prevent extra spacing
     },
-    innerHTML: svgContent,
+    innerHTML: processedSvgContent,
   });
 
   // Create pseudo-element effects using absolute positioned divs

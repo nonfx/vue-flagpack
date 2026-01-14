@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { ref, watch, onMounted, shallowRef, defineAsyncComponent } from 'vue'
+import { computed } from 'vue'
 import { isoToAlpha2 } from './utils/isoToAlpha2'
-import type { Component } from 'vue'
+import * as allFlags from './flags/index'
 
 interface Props {
   size?: 'small' | 'medium' | 'large'
@@ -23,14 +23,8 @@ const props = withDefaults(defineProps<Props>(), {
   className: ''
 })
 
-const FlagComponent = shallowRef<Component | null>(null)
-const isLoading = ref(true)
-const hasError = ref(false)
-
-const loadFlag = () => {
-  isLoading.value = true
-  hasError.value = false
-  
+// Compute the flag component based on code and size
+const FlagComponent = computed(() => {
   try {
     // Convert any ISO format (alpha2, alpha3, numeric) to alpha2 (2-letter code)
     const countryCode = (isoToAlpha2(props.code) || props.code).toUpperCase().trim()
@@ -39,39 +33,25 @@ const loadFlag = () => {
     const sizeCapitalized = props.size.charAt(0).toUpperCase() + props.size.slice(1)
     const componentKey = `Flag${sanitizedCode}${sizeCapitalized}`
     
-    // Use defineAsyncComponent for lazy loading
-    FlagComponent.value = defineAsyncComponent({
-      loader: () => import(`./flags/Flag${sanitizedCode}.ts`).then((module: any) => {
-        return module[componentKey] || module.default
-      }),
-      onError(error) {
-        console.warn(`Flag not found: ${props.code}`, error)
-        hasError.value = true
-        isLoading.value = false
-      }
-    })
+    // Look up the component from the imported flags
+    const component = (allFlags as any)[componentKey]
     
-    isLoading.value = false
+    if (!component) {
+      console.warn(`Flag not found: ${props.code} (looking for ${componentKey})`)
+      return null
+    }
+    
+    return component
   } catch (error) {
     console.warn(`Flag not found: ${props.code}`, error)
-    FlagComponent.value = null
-    hasError.value = true
-    isLoading.value = false
+    return null
   }
-}
-
-onMounted(() => {
-  loadFlag()
-})
-
-watch(() => [props.code, props.size], () => {
-  loadFlag()
 })
 </script>
 
 <template>
   <component
-    v-if="FlagComponent && !isLoading"
+    v-if="FlagComponent"
     :is="FlagComponent"
     :has-border="hasBorder"
     :has-border-radius="hasBorderRadius"
@@ -79,7 +59,7 @@ watch(() => [props.code, props.size], () => {
     :gradient="gradient"
     :class-name="className"
   />
-  <div v-else-if="hasError" class="flag-error">
+  <div v-else class="flag-error">
     <!-- Fallback for missing flag -->
   </div>
 </template>
