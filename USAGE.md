@@ -146,6 +146,104 @@ const MyFlag = createFlagComponent('US', 'medium', svgContent)
 </script>
 ```
 
+## Tree-Shakeable Flag Components
+
+Import individual flag components directly for maximum tree-shaking. Only the exact flags you import will be in your bundle.
+
+### Import Specific Flags
+
+```vue
+<script setup>
+// Import only the US flag components you need
+import { FlagUSSmall, FlagUSMedium, FlagUSLarge } from '@nonfx/vue-flagpack/flags'
+
+// Or import the default (medium size)
+import FlagUS from '@nonfx/vue-flagpack/flags/FlagUS'
+</script>
+
+<template>
+  <FlagUSSmall />
+  <FlagUSMedium />
+  <FlagUSLarge />
+  
+  <!-- Or use the default -->
+  <FlagUS />
+</template>
+```
+
+### Multiple Flags
+
+```vue
+<script setup>
+import { FlagUSMedium } from '@nonfx/vue-flagpack/flags/FlagUS'
+import { FlagCAMedium } from '@nonfx/vue-flagpack/flags/FlagCA'
+import { FlagMXMedium } from '@nonfx/vue-flagpack/flags/FlagMX'
+</script>
+
+<template>
+  <FlagUSMedium />
+  <FlagCAMedium />
+  <FlagMXMedium />
+</template>
+```
+
+### Pattern
+
+Flag components follow this naming pattern:
+- **File**: `@nonfx/vue-flagpack/flags/Flag{CODE}`
+- **Exports**: 
+  - `Flag{CODE}Small` - Small size (16×12)
+  - `Flag{CODE}Medium` - Medium size (20×15)
+  - `Flag{CODE}Large` - Large size (32×24)
+  - `default` - Medium size (default export)
+
+**Examples**:
+```js
+// United States
+import FlagUS, { FlagUSSmall, FlagUSMedium, FlagUSLarge } from '@nonfx/vue-flagpack/flags/FlagUS'
+
+// Canada
+import FlagCA, { FlagCASmall, FlagCAMedium, FlagCALarge } from '@nonfx/vue-flagpack/flags/FlagCA'
+
+// United Kingdom (note the underscore)
+import FlagGB_UKM from '@nonfx/vue-flagpack/flags/FlagGB_UKM'
+```
+
+### Special Characters
+
+Country codes with hyphens are converted to underscores:
+```js
+// GB-UKM becomes GB_UKM
+import { FlagGB_UKMMedium } from '@nonfx/vue-flagpack/flags/FlagGB_UKM'
+
+// BQ-BO becomes BQ_BO
+import { FlagBQ_BOLarge } from '@nonfx/vue-flagpack/flags/FlagBQ_BO'
+```
+
+### Bundle Impact
+
+```vue
+<script setup>
+// ❌ Dynamic import - includes conversion logic + on-demand loading
+import { Flag } from '@nonfx/vue-flagpack'
+
+// ✅ Direct import - only US flag in bundle, no conversion needed
+import { FlagUSMedium } from '@nonfx/vue-flagpack/flags/FlagUS'
+</script>
+
+<template>
+  <!-- Dynamic: ~26KB overhead + flag loaded on demand -->
+  <Flag code="US" />
+  
+  <!-- Direct: Only US flag SVG (~10KB), loaded immediately -->
+  <FlagUSMedium />
+</template>
+```
+
+**When to use each**:
+- **Dynamic `<Flag>`**: User-selected flags, dynamic country codes
+- **Direct import**: Static flags, known at build time, maximum optimization
+
 ## Examples
 
 ### List of Flags
@@ -310,8 +408,62 @@ const converted = codes.map(isoToCountryCode) // ["US", "US", "US"]
 </template>
 ```
 
+## Quick Reference
+
+### Import Paths
+
+```js
+// Main component (dynamic, with ISO conversion)
+import { Flag } from '@nonfx/vue-flagpack'
+
+// Direct flag components (static, tree-shakeable)
+import { FlagUSMedium } from '@nonfx/vue-flagpack/flags/FlagUS'
+
+// Utilities
+import { isoToCountryCode, isValidIsoCode } from '@nonfx/vue-flagpack'
+
+// Plugin (Vue 3)
+import VueFlagpack from '@nonfx/vue-flagpack'
+
+// Nuxt module
+modules: ['@nonfx/vue-flagpack/nuxt']
+```
+
+### Available Sizes
+
+| Size | Dimensions | Use Case |
+|------|------------|----------|
+| `small` | 16×12 | Icons, compact lists |
+| `medium` | 20×15 | Default, most uses |
+| `large` | 32×24 | Hero sections, details |
+
+### ISO Code Formats
+
+All these are equivalent:
+
+| Format | Example | Description |
+|--------|---------|-------------|
+| Alpha2 | `US` | 2-letter code |
+| Alpha3 | `USA` | 3-letter code |
+| Numeric | `840` | Numeric code |
+
+### Component Props
+
+```vue
+<Flag
+  code="US"           // Required: ISO code
+  size="medium"       // 'small' | 'medium' | 'large'
+  has-drop-shadow     // boolean
+  has-border          // boolean (default: true)
+  has-border-radius   // boolean (default: true)
+  gradient="real-linear"  // 'top-down' | 'real-linear' | 'real-circular'
+  class-name="my-flag"    // string
+/>
+```
+
 ## More Info
 
 - [Full Documentation](https://flagpack.xyz/docs/)
 - [Flag Index](https://flagpack.xyz/docs/flag-index/)
 - [GitHub](https://github.com/nonfx/vue-flagpack)
+- [npm Package](https://www.npmjs.com/package/@nonfx/vue-flagpack)
