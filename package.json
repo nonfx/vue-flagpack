@@ -1,7 +1,7 @@
 {
   "name": "@nonfx/vue-flagpack",
   "description": "Gorgeous flag components for your Vue 3 and Nuxt 3 project with tree-shaking support.",
-  "version": "2.0.4",
+  "version": "2.0.5",
   "type": "module",
   "author": "Yummygum <info@yummygum.com> (https://yummygum.com)",
   "repository": {
