@@ -43,8 +43,9 @@
   "homepage": "https://flagpack.xyz",
   "scripts": {
     "dev": "NODE_ENV=development rollup -cw",
-    "prebuild": "rm -rf dist",
-    "build": "NODE_ENV=production rollup -c"
+    "prebuild": "rm -rf dist && npm run copy-flags",
+    "build": "NODE_ENV=production rollup -c",
+    "copy-flags": "rm -rf src/flags && mkdir -p src/flags && cp -r node_modules/flagpack-core/lib/flags/* src/flags/"
   },
   "browserslist": [
     "> 1%",
@@ -84,8 +85,10 @@
       "url": "https://yummygum.com"
     }
   ],
-  "peerDependencies": {
-    "vue": "^3.0.0",
+  "dependencies": {
     "flagpack-core": "^2.1.0"
+  },
+  "peerDependencies": {
+    "vue": "^3.0.0"
   }
 }
