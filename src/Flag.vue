@@ -45,13 +45,16 @@ const loadFlag = async () => {
     const sizeKey = props.size.toLowerCase()
     
     // Dynamic import from local flags directory
-    // This enables tree-shaking - only flags you use will be bundled
+    // Import as raw SVG string and convert to data URL
     const svgModule = await import(
       /* @vite-ignore */
-      `./flags/${sizeKey}/${countryCode}.svg?url`
+      `./flags/${sizeKey}/${countryCode}.svg?raw`
     )
     
-    flagSvg.value = svgModule.default
+    // Convert SVG string to data URL
+    const svgString = svgModule.default
+    const blob = new Blob([svgString], { type: 'image/svg+xml' })
+    flagSvg.value = URL.createObjectURL(blob)
   } catch (error) {
     console.warn(`Flag not found for code: ${props.code}`, error)
     flagSvg.value = ''

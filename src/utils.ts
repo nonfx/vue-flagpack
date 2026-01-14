@@ -14,10 +14,13 @@ export async function getFlagUrl(
     
     const svgModule = await import(
       /* @vite-ignore */
-      `./flags/${sizeKey}/${countryCode}.svg?url`
+      `./flags/${sizeKey}/${countryCode}.svg?raw`
     )
     
-    return svgModule.default
+    // Convert SVG string to data URL
+    const svgString = svgModule.default
+    const blob = new Blob([svgString], { type: 'image/svg+xml' })
+    return URL.createObjectURL(blob)
   } catch (error) {
     console.warn(`Flag not found for code: ${code}`, error)
     return ''
