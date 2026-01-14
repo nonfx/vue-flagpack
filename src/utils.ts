@@ -14,7 +14,7 @@ export async function getFlagUrl(
     
     const svgModule = await import(
       /* @vite-ignore */
-      `./flags/${sizeKey}/${countryCode}.svg?raw`
+      `@nonfx/vue-flagpack/src/flags/${sizeKey}/${countryCode}.svg?raw`
     )
     
     // Convert SVG string to data URL

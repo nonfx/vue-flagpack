@@ -44,11 +44,11 @@ const loadFlag = async () => {
     const countryCode = (isoToCountryCode(props.code) || props.code).toUpperCase()
     const sizeKey = props.size.toLowerCase()
     
-    // Dynamic import from local flags directory
-    // Import as raw SVG string and convert to data URL
+    // Dynamic import from package root
+    // Using absolute path from package root for proper resolution
     const svgModule = await import(
       /* @vite-ignore */
-      `./flags/${sizeKey}/${countryCode}.svg?raw`
+      `@nonfx/vue-flagpack/src/flags/${sizeKey}/${countryCode}.svg?raw`
     )
     
     // Convert SVG string to data URL
