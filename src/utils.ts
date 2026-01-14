@@ -1,26 +1,16 @@
 import { isoToCountryCode } from 'flagpack-core'
+import { getFlagData } from './flagData'
 
 /**
- * Get the flag SVG URL for a given country code and size
- * This uses dynamic imports to enable tree-shaking
+ * Get the flag data URL for a given country code and size
  */
-export async function getFlagUrl(
+export function getFlagUrl(
   code: string,
   size: 's' | 'm' | 'l' = 'm'
-): Promise<string> {
+): string {
   try {
     const countryCode = (isoToCountryCode(code) || code).toUpperCase()
-    const sizeKey = size.toLowerCase()
-    
-    const svgModule = await import(
-      /* @vite-ignore */
-      `@nonfx/vue-flagpack/src/flags/${sizeKey}/${countryCode}.svg?raw`
-    )
-    
-    // Convert SVG string to data URL
-    const svgString = svgModule.default
-    const blob = new Blob([svgString], { type: 'image/svg+xml' })
-    return URL.createObjectURL(blob)
+    return getFlagData(countryCode, size)
   } catch (error) {
     console.warn(`Flag not found for code: ${code}`, error)
     return ''
@@ -28,12 +18,12 @@ export async function getFlagUrl(
 }
 
 /**
- * Helper to import a specific flag statically for maximum tree-shaking
- * Usage: const nlFlag = await importFlag('NL', 'l')
+ * Helper to get a specific flag
+ * Usage: const nlFlag = importFlag('NL', 'l')
  */
-export async function importFlag(
+export function importFlag(
   code: string,
   size: 's' | 'm' | 'l' = 'm'
-): Promise<string> {
+): string {
   return getFlagUrl(code, size)
 }

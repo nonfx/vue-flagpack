@@ -1,10 +1,9 @@
 /**
- * Get the flag SVG URL for a given country code and size
- * This uses dynamic imports to enable tree-shaking
+ * Get the flag data URL for a given country code and size
  */
-export declare function getFlagUrl(code: string, size?: 's' | 'm' | 'l'): Promise<string>;
+export declare function getFlagUrl(code: string, size?: 's' | 'm' | 'l'): string;
 /**
- * Helper to import a specific flag statically for maximum tree-shaking
- * Usage: const nlFlag = await importFlag('NL', 'l')
+ * Helper to get a specific flag
+ * Usage: const nlFlag = importFlag('NL', 'l')
  */
-export declare function importFlag(code: string, size?: 's' | 'm' | 'l'): Promise<string>;
+export declare function importFlag(code: string, size?: 's' | 'm' | 'l'): string;

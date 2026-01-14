@@ -34,8 +34,7 @@
     },
     "./nuxt": {
       "import": "./dist/nuxt.mjs"
-    },
-    "./src/flags/*": "./src/flags/*"
+    }
   },
   "license": "MIT",
   "bugs": {
@@ -44,9 +43,9 @@
   "homepage": "https://flagpack.xyz",
   "scripts": {
     "dev": "NODE_ENV=development rollup -cw",
-    "prebuild": "rm -rf dist && npm run copy-flags",
+    "prebuild": "rm -rf dist && npm run generate-flags",
     "build": "NODE_ENV=production rollup -c",
-    "copy-flags": "rm -rf src/flags && mkdir -p src/flags && cp -r node_modules/flagpack-core/lib/flags/* src/flags/"
+    "generate-flags": "node scripts/generate-flags.js"
   },
   "browserslist": [
     "> 1%",

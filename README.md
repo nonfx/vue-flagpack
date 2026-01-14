@@ -133,49 +133,41 @@ app.mount('#app')
 
 
 
-## How Dynamic Loading Works
+## How It Works
 
-Vue-flagpack uses **dynamic imports with code-splitting** for efficient flag loading:
+Vue-flagpack uses **embedded base64 data URLs** for maximum compatibility:
 
-- **Dynamic Imports**: The `Flag` component dynamically imports SVG files based on the `code` prop
-- **Code-Splitting**: Modern bundlers (Vite, Webpack 5, Nuxt 3) split flags into separate chunks
-- **Lazy Loading**: Flags are loaded on-demand when the component renders
-- **Cache-Friendly**: Once loaded, flags are cached by the browser
+- **Zero Configuration**: Works out-of-the-box with Nuxt 3, Vite, Webpack, and any Vue 3 setup
+- **No Dynamic Imports**: All flags are bundled as base64 data URLs - no runtime loading
+- **Instant Display**: Flags display immediately without any network requests
+- **Works Everywhere**: No bundler configuration needed
 
-### Static vs Dynamic Usage
+### Usage (Static or Dynamic)
 
-**Static usage (known at build time):**
+Both static and dynamic usage work identically:
+
 ```vue
+<!-- Static -->
 <Flag code="NL" size="m" />
-<Flag code="US" size="m" />
-```
-Result: Only NL.svg and US.svg might be bundled (depending on bundler optimization)
 
-**Dynamic usage (refs/computed/props):**
-```vue
+<!-- Dynamic (fully supported) -->
 <Flag :code="selectedCountry" size="m" />
 ```
-Result: All flags in the `m` size directory (~750 flags) are included as separate chunks, loaded on-demand
 
-**Note:** Because the flag code is determined at runtime, bundlers cannot tree-shake unused flags. However, they are lazy-loaded, so only the flags actually displayed are fetched by the browser.
+**Both work perfectly!** Flags change instantly when your ref updates.
 
-### Bundle Size Comparison
+### Bundle Size
 
-- **v1.x**: ~16MB (all flags bundled together)
-- **v2.x**: ~5KB base + flags as separate chunks
+**v2.x bundle size**: ~15MB (all flags as base64 data URLs)
 
-**With static usage (code known at build time):**
-- Your bundle = ~5KB base + ~10KB (5 flags) = **~15KB total**
+While this includes all 2,249 flags, the benefits are:
+- ✅ **Zero network requests** - flags display instantly
+- ✅ **Works offline** - no CDN or external dependencies
+- ✅ **No configuration** - works with any bundler
+- ✅ **Reliable** - no dynamic import issues
+- ✅ **Gzip-friendly** - compresses well (~4-5MB gzipped)
 
-**With dynamic usage (code determined at runtime):**
-- Your bundle = ~5KB base + ~17MB (all flags as separate chunks)
-- But only the flags you actually display are loaded by the browser
-- Each flag is ~2-4KB and loaded on-demand
-
-**Recommendation:** For dynamic country selectors with many possible flags, this is optimal because:
-- Users only download the flags they actually see
-- Flags are cached after first load
-- No large initial bundle
+**Note:** Modern web apps often bundle similar amounts of assets. The instant display and zero configuration make this tradeoff worthwhile for most use cases.
 
 ## Available component configurations — Props
 

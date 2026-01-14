@@ -16,6 +16,7 @@
 <script setup lang="ts">
 import { ref, watch, onMounted } from 'vue'
 import { isoToCountryCode } from 'flagpack-core'
+import { getFlagData } from './flagData'
 
 interface Props {
   size?: 's' | 'm' | 'l'
@@ -39,22 +40,20 @@ const props = withDefaults(defineProps<Props>(), {
 
 const flagSvg = ref<string>('')
 
-const loadFlag = async () => {
+const loadFlag = () => {
   try {
     const countryCode = (isoToCountryCode(props.code) || props.code).toUpperCase()
-    const sizeKey = props.size.toLowerCase()
+    const sizeKey = props.size.toLowerCase() as 's' | 'm' | 'l'
     
-    // Dynamic import from package root
-    // Using absolute path from package root for proper resolution
-    const svgModule = await import(
-      /* @vite-ignore */
-      `@nonfx/vue-flagpack/src/flags/${sizeKey}/${countryCode}.svg?raw`
-    )
+    // Get flag from static data map (no async needed!)
+    const dataUrl = getFlagData(countryCode, sizeKey)
     
-    // Convert SVG string to data URL
-    const svgString = svgModule.default
-    const blob = new Blob([svgString], { type: 'image/svg+xml' })
-    flagSvg.value = URL.createObjectURL(blob)
+    if (dataUrl) {
+      flagSvg.value = dataUrl
+    } else {
+      console.warn(`Flag not found for code: ${props.code}`)
+      flagSvg.value = ''
+    }
   } catch (error) {
     console.warn(`Flag not found for code: ${props.code}`, error)
     flagSvg.value = ''
