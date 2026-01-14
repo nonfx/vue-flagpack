@@ -30,7 +30,21 @@ Starting from flagpack-core v2.0.0, vue-flagpack supports **tree-shaking**! This
 ## Installation
 
 ```bash
-npm install vue-flagpack
+npm install vue-flagpack flagpack-core
+```
+
+**Important:** This package requires a bundler (Vite, Webpack, Rollup, etc.) to work correctly. The dynamic imports used for tree-shaking are processed at build time by your bundler.
+
+### Vite Configuration
+
+If you're using Vite, you may need to add the following to your `vite.config.js` to ensure proper handling of the SVG imports:
+
+```js
+export default {
+  optimizeDeps: {
+    include: ['flagpack-core']
+  }
+}
 ```
 
 ## Usage
@@ -139,6 +153,11 @@ Vue-flagpack leverages **dynamic imports** to ensure only the flag SVGs you use 
 - **No Bloat**: Unlike v1, all 250+ flags are NOT bundled into your app by default
 - **Optimized Bundles**: Modern bundlers (Vite, Webpack 5, Rollup) will code-split flag SVGs into separate chunks
 - **On-Demand**: Flags are loaded when the component renders, keeping initial bundle size minimal
+
+**Requirements:**
+- A bundler is **required** (Vite, Webpack, Rollup, Nuxt, etc.)
+- Both `vue-flagpack` and `flagpack-core` must be installed
+- Direct browser usage via CDN with tree-shaking is not supported
 
 ### Bundle Size Comparison
 
