@@ -1,25 +1,10 @@
-<template>
-  <div
-    :class="[
-      'flag',
-      `size-${size}`,
-      {'border-radius': hasBorderRadius },
-      {'border': hasBorder },
-      {'drop-shadow': hasDropShadow},
-      gradient,
-      className
-    ]">
-    <img v-if="flagSvg" :src="flagSvg" alt="flag">
-  </div>
-</template>
-
 <script setup lang="ts">
-import { ref, watch, onMounted } from 'vue'
-import { isoToCountryCode } from 'flagpack-core'
-import { getFlagData } from './flagData'
+import { ref, watch, onMounted, shallowRef } from 'vue'
+import { isoToAlpha2 } from './utils/isoToAlpha2'
+import type { Component } from 'vue'
 
 interface Props {
-  size?: 's' | 'm' | 'l'
+  size?: 'small' | 'medium' | 'large'
   code?: string
   hasDropShadow?: boolean
   hasBorder?: boolean
@@ -29,8 +14,8 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  size: 'm',
-  code: '528',
+  size: 'medium',
+  code: 'NL',
   hasDropShadow: false,
   hasBorder: true,
   hasBorderRadius: true,
@@ -38,29 +23,33 @@ const props = withDefaults(defineProps<Props>(), {
   className: ''
 })
 
-const flagSvg = ref<string>('')
+const FlagComponent = shallowRef<Component | null>(null)
+const isLoading = ref(true)
+const hasError = ref(false)
 
-const loadFlag = () => {
+const loadFlag = async () => {
+  isLoading.value = true
+  hasError.value = false
+  
   try {
-    const countryCode = (isoToCountryCode(props.code) || props.code).toUpperCase()
-    const sizeKey = props.size.toLowerCase() as 's' | 'm' | 'l'
+    // Convert any ISO format (alpha2, alpha3, numeric) to alpha2 (2-letter code)
+    const countryCode = (isoToAlpha2(props.code) || props.code).toUpperCase().trim()
+    // Sanitize code for JavaScript identifier (replace hyphens, spaces, dots with underscores)
+    const sanitizedCode = countryCode.replace(/[-\s.]/g, '_')
+    const sizeCapitalized = props.size.charAt(0).toUpperCase() + props.size.slice(1)
     
-    // Get flag from static data map (no async needed!)
-    const dataUrl = getFlagData(countryCode, sizeKey)
-    
-    if (dataUrl) {
-      flagSvg.value = dataUrl
-    } else {
-      console.warn(`Flag not found for code: ${props.code}`)
-      flagSvg.value = ''
-    }
+    // Dynamic import - Vite/Rollup will code-split this
+    const module = await import(`./flags/Flag${sanitizedCode}.ts`)
+    FlagComponent.value = module[`Flag${sanitizedCode}${sizeCapitalized}`]
   } catch (error) {
-    console.warn(`Flag not found for code: ${props.code}`, error)
-    flagSvg.value = ''
+    console.warn(`Flag not found: ${props.code}`, error)
+    FlagComponent.value = null
+    hasError.value = true
+  } finally {
+    isLoading.value = false
   }
 }
 
-// Load flag on mount and when code/size changes
 onMounted(() => {
   loadFlag()
 })
@@ -70,106 +59,27 @@ watch(() => [props.code, props.size], () => {
 })
 </script>
 
-<style scoped lang="scss">
-@mixin before-styling {
-  content: '';
-  width: 100%;
-  height: 100%;
-  position: absolute;
-  display: block;
-  mix-blend-mode: overlay;
-  box-sizing: border-box;
-}
+<template>
+  <component
+    v-if="FlagComponent && !isLoading"
+    :is="FlagComponent"
+    :has-border="hasBorder"
+    :has-border-radius="hasBorderRadius"
+    :has-drop-shadow="hasDropShadow"
+    :gradient="gradient"
+    :class-name="className"
+  />
+  <div v-else-if="hasError" class="flag-error">
+    <!-- Fallback for missing flag -->
+  </div>
+</template>
 
-.flag {
+<style scoped>
+.flag-error {
   display: inline-block;
-  overflow: hidden;
-  position: relative;
-  box-sizing: border-box;
-
-  &.size {
-    &-s {
-      width: 16px;
-      height: 12px;
-
-      &.drop-shadow {
-        box-shadow: 0 0 1px 0.5px rgba(0,0,0,0.10);
-      }
-
-      &.border-radius {
-        border-radius: 1px;
-      }
-    }
-
-    &-m {
-      width: 20px;
-      height: 15px;
-
-      &.drop-shadow {
-        box-shadow: 0 1px 2px 0 rgba(0,0,0,0.10);
-      }
-
-      &.border-radius {
-        border-radius: 1.5px;
-      }
-    }
-
-    &-l {
-      width: 32px;
-      height: 24px;
-
-      &.drop-shadow {
-        box-shadow: 0 2px 3px 0 rgba(0,0,0,0.10);
-      }
-
-      &.border-radius {
-        border-radius: 2px;
-      }
-    }
-  }
-
-  &.border {
-    &::before {
-      @include before-styling();
-      border: 1px solid rgba(0, 0, 0, .5);
-      mix-blend-mode: overlay;
-    }
-  }
-
-  &.border-radius {
-    &::before {
-      @include before-styling();
-      border-radius: 1px;
-    }
-  }
-
-  &.top-down {
-    &::before {
-      @include before-styling();
-      background-image: linear-gradient(0deg, rgba(0,0,0,0.30) 2%, rgba(255,255,255,0.70) 100%);
-    }
-  }
-
-  &.real-linear {
-    &::before {
-      @include before-styling();
-      background-image: linear-gradient(45deg, rgba(0,0,0,0.20) 0%, rgba(39,39,39,0.22) 11%, rgba(255,255,255,0.30) 27%, rgba(0,0,0,0.24) 41%, rgba(0,0,0,0.55) 52%, rgba(255,255,255,0.26) 63%, rgba(0,0,0,0.27) 74%, rgba(255,255,255,0.30) 100%);
-    }
-  }
-
-  &.real-circular {
-    &::before {
-      @include before-styling();
-      background: radial-gradient(50% 36%, rgba(255,255,255,0.30) 0%, rgba(0,0,0,0.24) 11%, rgba(0,0,0,0.55) 17%, rgba(255,255,255,0.26) 22%, rgba(0,0,0,0.17) 27%, rgba(255,255,255,0.28) 31%, rgba(255,255,255,0.00) 37%) center calc(50% - 8px) / 600% 600%,
-                  radial-gradient(50% 123%, rgba(255,255,255,0.30) 25%, rgba(0,0,0,0.24) 48%, rgba(0,0,0,0.55) 61%, rgba(255,255,255,0.26) 72%, rgba(0,0,0,0.17) 80%, rgba(255,255,255,0.28) 88%, rgba(255,255,255,0.30) 100%) center calc(50% - 8px) / 600% 600%;
-    }
-  }
-
-  img {
-    display: block;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
+  width: 20px;
+  height: 15px;
+  background: #f0f0f0;
+  border: 1px solid #ccc;
 }
 </style>

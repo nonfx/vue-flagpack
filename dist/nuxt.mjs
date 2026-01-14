@@ -1,1 +1,0 @@
-import{defineNuxtModule as a,addComponent as e}from"@nuxt/kit";var t=a({meta:{name:"vue-flagpack",configKey:"vueFlagpack",compatibility:{nuxt:"^3.0.0"}},defaults:{},setup(a,t){e({name:"Flag",filePath:"vue-flagpack",export:"Flag"})}});export{t as default};

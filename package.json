@@ -22,7 +22,8 @@
   ],
   "files": [
     "dist/*",
-    "src/*"
+    "src/*",
+    "!src/flags"
   ],
   "main": "./dist/vue-flag-rollup.cjs.js",
   "module": "./dist/vue-flag-rollup.esm.js",
@@ -34,6 +35,10 @@
     },
     "./nuxt": {
       "import": "./dist/nuxt.mjs"
+    },
+    "./flags": {
+      "import": "./dist/flags/index.js",
+      "types": "./src/flags/index.ts"
     }
   },
   "license": "MIT",
@@ -43,9 +48,11 @@
   "homepage": "https://flagpack.xyz",
   "scripts": {
     "dev": "NODE_ENV=development rollup -cw",
-    "prebuild": "rm -rf dist && npm run generate-flags",
+    "clean": "rm -rf dist src/flags",
+    "prebuild": "npm run clean && npm run generate-flags",
     "build": "NODE_ENV=production rollup -c",
-    "generate-flags": "node scripts/generate-flags.js"
+    "generate-flags": "node scripts/generate-flags.js",
+    "prepublishOnly": "npm run build"
   },
   "browserslist": [
     "> 1%",
@@ -55,10 +62,12 @@
   "devDependencies": {
     "@nuxt/kit": "^3.10.0",
     "@rollup/plugin-commonjs": "^25.0.0",
+    "@rollup/plugin-json": "^6.1.0",
     "@rollup/plugin-node-resolve": "^15.0.0",
     "@rollup/plugin-terser": "^0.4.4",
     "@vitejs/plugin-vue": "^5.0.0",
     "@vue/compiler-sfc": "^3.4.0",
+    "flagpack-core": "^2.1.0",
     "postcss": "^8.4.0",
     "rollup": "^4.0.0",
     "rollup-plugin-postcss": "^4.0.2",
@@ -85,9 +94,6 @@
       "url": "https://yummygum.com"
     }
   ],
-  "dependencies": {
-    "flagpack-core": "^2.1.0"
-  },
   "peerDependencies": {
     "vue": "^3.0.0"
   }

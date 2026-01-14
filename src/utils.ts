@@ -1,4 +1,4 @@
-import { isoToCountryCode } from 'flagpack-core'
+import { isoToAlpha2 } from './utils/isoToAlpha2'
 import { getFlagData } from './flagData'
 
 /**
@@ -9,7 +9,7 @@ export function getFlagUrl(
   size: 's' | 'm' | 'l' = 'm'
 ): string {
   try {
-    const countryCode = (isoToCountryCode(code) || code).toUpperCase()
+    const countryCode = (isoToAlpha2(code) || code).toUpperCase()
     return getFlagData(countryCode, size)
   } catch (error) {
     console.warn(`Flag not found for code: ${code}`, error)

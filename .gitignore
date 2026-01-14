@@ -4,6 +4,10 @@ npm-debug.log
 yarn-error.log
 .package-lock.json
 
+# Generated files (built during publish)
+src/flags/
+dist/
+
 # Editor directories and files
 .idea
 .vscode

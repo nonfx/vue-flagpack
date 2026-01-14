@@ -1,6 +1,7 @@
 import commonjs from '@rollup/plugin-commonjs'
 import resolve from '@rollup/plugin-node-resolve'
 import terser from '@rollup/plugin-terser'
+import json from '@rollup/plugin-json'
 import postcss from 'rollup-plugin-postcss'
 import VuePlugin from 'rollup-plugin-vue'
 import typescript from 'rollup-plugin-typescript2'
@@ -8,6 +9,7 @@ import typescript from 'rollup-plugin-typescript2'
 const isProduction = process.env.NODE_ENV === 'production'
 
 const basePlugins = [
+  json(),
   resolve({
     extensions: ['.js', '.ts', '.vue']
   }),
@@ -65,9 +67,9 @@ if (isProduction) {
 export default [
   // Main Vue 3 package
   {
-    input: 'src/main.js',
+    input: 'src/main.ts',
     plugins: vuePlugins,
-    external: ['vue', 'flagpack-core'],
+    external: ['vue'],
     output: [
       {
         file: 'dist/vue-flag-rollup.cjs.js',
@@ -84,8 +86,7 @@ export default [
         name: 'VueFlagpack',
         exports: 'named',
         globals: {
-          vue: 'Vue',
-          'flagpack-core': 'flagpackCore'
+          vue: 'Vue'
         }
       }
     ]
@@ -94,10 +95,34 @@ export default [
   {
     input: 'src/nuxt.ts',
     plugins: nuxtPlugins,
-    external: ['@nuxt/kit', 'vue', 'flagpack-core'],
+    external: ['@nuxt/kit', 'vue'],
     output: {
       file: 'dist/nuxt.mjs',
       format: 'esm'
+    }
+  },
+  // Individual flag components (tree-shakeable)
+  {
+    input: 'src/flags/index.ts',
+    plugins: [
+      ...basePlugins,
+      typescript({
+        check: false,
+        tsconfigOverride: {
+          compilerOptions: {
+            declaration: true,
+            declarationDir: 'dist/flags'
+          }
+        }
+      }),
+      ...(isProduction ? [terser()] : [])
+    ],
+    external: ['vue', '../createFlagComponent', '../sizeConfig'],
+    output: {
+      dir: 'dist/flags',
+      format: 'esm',
+      preserveModules: true,
+      preserveModulesRoot: 'src/flags'
     }
   }
 ]
