@@ -9,15 +9,28 @@ export async function getFlagUrl(
   size: 's' | 'm' | 'l' = 'm'
 ): Promise<string> {
   try {
-    const countryCode = isoToCountryCode(code).toUpperCase()
+    const countryCode = (isoToCountryCode(code) || code).toUpperCase()
     const sizeKey = size.toLowerCase()
     
-    const svgModule = await import(
-      /* @vite-ignore */
-      `flagpack-core/lib/flags/${sizeKey}/${countryCode}.svg`
-    )
-    
-    return svgModule.default
+    // Try dynamic import first (works with bundlers that support it)
+    try {
+      const svgModule = await import(
+        /* @vite-ignore */
+        `flagpack-core/lib/flags/${sizeKey}/${countryCode}.svg`
+      )
+      return svgModule.default
+    } catch (importError) {
+      // Fallback to CDN if dynamic import fails
+      const cdnUrl = `https://cdn.jsdelivr.net/npm/flagpack-core@2.1.0/lib/flags/${sizeKey}/${countryCode}.svg`
+      const response = await fetch(cdnUrl)
+      if (response.ok) {
+        const svgText = await response.text()
+        const blob = new Blob([svgText], { type: 'image/svg+xml' })
+        return URL.createObjectURL(blob)
+      } else {
+        throw new Error(`Failed to fetch flag from CDN: ${response.status}`)
+      }
+    }
   } catch (error) {
     console.warn(`Flag not found for code: ${code}`, error)
     return ''

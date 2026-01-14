@@ -33,19 +33,7 @@ Starting from flagpack-core v2.0.0, vue-flagpack supports **tree-shaking**! This
 npm install vue-flagpack flagpack-core
 ```
 
-**Important:** This package requires a bundler (Vite, Webpack, Rollup, etc.) to work correctly. The dynamic imports used for tree-shaking are processed at build time by your bundler.
-
-### Vite Configuration
-
-If you're using Vite, you may need to add the following to your `vite.config.js` to ensure proper handling of the SVG imports:
-
-```js
-export default {
-  optimizeDeps: {
-    include: ['flagpack-core']
-  }
-}
-```
+**Note:** This package works with or without a bundler. If your bundler doesn't support dynamic imports of SVG files from node_modules (common in Nuxt 3), the package automatically falls back to loading flags from jsDelivr CDN. This ensures maximum compatibility while maintaining small bundle sizes.
 
 ## Usage
 
@@ -147,24 +135,28 @@ app.mount('#app')
 
 ## How Tree-Shaking Works
 
-Vue-flagpack leverages **dynamic imports** to ensure only the flag SVGs you use are included in your final bundle:
+Vue-flagpack leverages **dynamic imports with CDN fallback** to ensure only the flag SVGs you use are loaded:
 
-- **Dynamic Loading**: The `Flag` component dynamically imports SVG files at runtime based on the `code` prop
+- **Smart Loading**: The `Flag` component first tries to dynamically import SVG files from your bundle
+- **CDN Fallback**: If bundler doesn't support the dynamic import, it automatically falls back to loading from jsDelivr CDN
 - **No Bloat**: Unlike v1, all 250+ flags are NOT bundled into your app by default
-- **Optimized Bundles**: Modern bundlers (Vite, Webpack 5, Rollup) will code-split flag SVGs into separate chunks
 - **On-Demand**: Flags are loaded when the component renders, keeping initial bundle size minimal
 
-**Requirements:**
-- A bundler is **required** (Vite, Webpack, Rollup, Nuxt, etc.)
-- Both `vue-flagpack` and `flagpack-core` must be installed
-- Direct browser usage via CDN with tree-shaking is not supported
+**How it works:**
+1. **With bundler support** (Vite with proper config, Webpack with file-loader): SVGs are bundled and tree-shaken
+2. **Without bundler support** (Nuxt 3, or bundlers without SVG import support): SVGs are loaded from CDN on-demand
+3. In both cases, only the flags you actually use are loaded
 
 ### Bundle Size Comparison
 
 - **Without tree-shaking (v1.x)**: ~16MB (all flags bundled)
-- **With tree-shaking (v2.x)**: ~4KB base + ~1-2KB per flag used
+- **With smart loading (v2.x)**: ~5KB base + flags loaded on-demand
 
-Example: If your app only uses 5 country flags, your bundle will be ~14KB instead of 16MB!
+Example: If your app uses 5 country flags:
+- **With bundler support**: ~5KB base + ~10KB flags = ~15KB total
+- **With CDN fallback**: ~5KB base + flags loaded from CDN (not in bundle)
+
+Either way, you avoid the 16MB bundle!
 
 ## Available component configurations — Props
 

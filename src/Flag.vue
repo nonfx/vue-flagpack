@@ -41,17 +41,31 @@ const flagSvg = ref<string>('')
 
 const loadFlag = async () => {
   try {
-    const countryCode = isoToCountryCode(props.code).toUpperCase()
+    const countryCode = (isoToCountryCode(props.code) || props.code).toUpperCase()
     const sizeKey = props.size.toLowerCase()
     
-    // Dynamically import the SVG for tree-shaking
-    // This ensures only the flags you use are bundled
-    const svgModule = await import(
-      /* @vite-ignore */
-      `flagpack-core/lib/flags/${sizeKey}/${countryCode}.svg`
-    )
-    
-    flagSvg.value = svgModule.default
+    // Try dynamic import first (works with bundlers that support it)
+    try {
+      const svgModule = await import(
+        /* @vite-ignore */
+        `flagpack-core/lib/flags/${sizeKey}/${countryCode}.svg`
+      )
+      flagSvg.value = svgModule.default
+    } catch (importError) {
+      // Fallback to CDN if dynamic import fails
+      // This ensures the package works even when bundler doesn't support
+      // dynamic imports of SVG files from node_modules
+      const cdnUrl = `https://cdn.jsdelivr.net/npm/flagpack-core@2.1.0/lib/flags/${sizeKey}/${countryCode}.svg`
+      const response = await fetch(cdnUrl)
+      if (response.ok) {
+        const svgText = await response.text()
+        // Create a data URL from the SVG text
+        const blob = new Blob([svgText], { type: 'image/svg+xml' })
+        flagSvg.value = URL.createObjectURL(blob)
+      } else {
+        throw new Error(`Failed to fetch flag from CDN: ${response.status}`)
+      }
+    }
   } catch (error) {
     console.warn(`Flag not found for code: ${props.code}`, error)
     flagSvg.value = ''
