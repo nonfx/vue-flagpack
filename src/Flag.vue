@@ -27,6 +27,9 @@ const FlagComponent = shallowRef<Component | null>(null)
 const isLoading = ref(true)
 const hasError = ref(false)
 
+// Vite glob import for development/build
+const flagModules = import.meta.glob('./flags/Flag*.ts', { eager: false })
+
 const loadFlag = async () => {
   isLoading.value = true
   hasError.value = false
@@ -38,9 +41,16 @@ const loadFlag = async () => {
     const sanitizedCode = countryCode.replace(/[-\s.]/g, '_')
     const sizeCapitalized = props.size.charAt(0).toUpperCase() + props.size.slice(1)
     
-    // Dynamic import - Vite/Rollup will code-split this
-    const module = await import(`./flags/Flag${sanitizedCode}.ts`)
-    FlagComponent.value = module[`Flag${sanitizedCode}${sizeCapitalized}`]
+    // Dynamic import using Vite's glob
+    const modulePath = `./flags/Flag${sanitizedCode}.ts`
+    const loader = flagModules[modulePath]
+    
+    if (loader) {
+      const module: any = await loader()
+      FlagComponent.value = module[`Flag${sanitizedCode}${sizeCapitalized}`] || null
+    } else {
+      throw new Error(`Flag module not found: ${modulePath}`)
+    }
   } catch (error) {
     console.warn(`Flag not found: ${props.code}`, error)
     FlagComponent.value = null

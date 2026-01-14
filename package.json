@@ -39,6 +39,10 @@
     "./flags": {
       "import": "./dist/flags/index.js",
       "types": "./src/flags/index.ts"
+    },
+    "./flags/*": {
+      "import": "./dist/flags/*.js",
+      "types": "./src/flags/*.ts"
     }
   },
   "license": "MIT",
