@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch, onMounted, shallowRef } from 'vue'
+import { ref, watch, onMounted, shallowRef, defineAsyncComponent } from 'vue'
 import { isoToAlpha2 } from './utils/isoToAlpha2'
 import type { Component } from 'vue'
 
@@ -27,10 +27,7 @@ const FlagComponent = shallowRef<Component | null>(null)
 const isLoading = ref(true)
 const hasError = ref(false)
 
-// Vite glob import for development/build
-const flagModules = import.meta.glob('./flags/Flag*.ts', { eager: false })
-
-const loadFlag = async () => {
+const loadFlag = () => {
   isLoading.value = true
   hasError.value = false
   
@@ -40,22 +37,25 @@ const loadFlag = async () => {
     // Sanitize code for JavaScript identifier (replace hyphens, spaces, dots with underscores)
     const sanitizedCode = countryCode.replace(/[-\s.]/g, '_')
     const sizeCapitalized = props.size.charAt(0).toUpperCase() + props.size.slice(1)
+    const componentKey = `Flag${sanitizedCode}${sizeCapitalized}`
     
-    // Dynamic import using Vite's glob
-    const modulePath = `./flags/Flag${sanitizedCode}.ts`
-    const loader = flagModules[modulePath]
+    // Use defineAsyncComponent for lazy loading
+    FlagComponent.value = defineAsyncComponent({
+      loader: () => import(`./flags/Flag${sanitizedCode}.ts`).then((module: any) => {
+        return module[componentKey] || module.default
+      }),
+      onError(error) {
+        console.warn(`Flag not found: ${props.code}`, error)
+        hasError.value = true
+        isLoading.value = false
+      }
+    })
     
-    if (loader) {
-      const module: any = await loader()
-      FlagComponent.value = module[`Flag${sanitizedCode}${sizeCapitalized}`] || null
-    } else {
-      throw new Error(`Flag module not found: ${modulePath}`)
-    }
+    isLoading.value = false
   } catch (error) {
     console.warn(`Flag not found: ${props.code}`, error)
     FlagComponent.value = null
     hasError.value = true
-  } finally {
     isLoading.value = false
   }
 }
