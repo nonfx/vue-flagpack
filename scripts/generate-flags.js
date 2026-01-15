@@ -59,22 +59,27 @@ for (const code of flagCodes) {
     // Read SVG for each size
     for (const [sizeKey, sizeName] of Object.entries(SIZES)) {
       const svgPath = path.join(SOURCE_DIR, sizeKey, `${code}.svg`);
-      
+
       if (fs.existsSync(svgPath)) {
         // Read and clean SVG
         let svgContent = fs.readFileSync(svgPath, 'utf-8');
-        
+
         // Remove <?xml?> declaration and clean whitespace
         svgContent = svgContent
           .replace(/<\?xml[^?]*\?>/g, '')
           .trim();
-        
+
+        // Make clip-path IDs unique by appending size suffix
+        // This prevents ID conflicts when multiple flag sizes are rendered on the same page
+        svgContent = svgContent.replace(/id="([^"]+)"/g, `id="$1_${sizeName}"`);
+        svgContent = svgContent.replace(/url\(#([^)]+)\)/g, `url(#$1_${sizeName})`);
+
         // Escape backticks and ${ for template literal
         svgContent = svgContent
           .replace(/\\/g, '\\\\')  // Escape backslashes first
           .replace(/`/g, '\\`')     // Escape backticks
           .replace(/\$/g, '\\$');   // Escape dollar signs
-        
+
         components[sizeName] = svgContent;
       } else {
         console.warn(`⚠️  Missing ${sizeKey} size for ${code}`);
