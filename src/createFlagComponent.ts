@@ -32,11 +32,11 @@ const createFlagComponent = (
   h(
     FlagIcon,
     {
-      ...attrs,
-      ...props,
       svgContent,
       code,
       size,
+      ...attrs,
+      ...props,
     },
     slots
   );

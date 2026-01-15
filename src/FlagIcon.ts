@@ -33,20 +33,25 @@ const FlagIcon: FunctionalComponent<FlagProps & FlagIconProps> = ({
     styles.boxShadow = config.dropShadow;
   }
 
-  // Process SVG content to add proper styling
-  // Insert style attributes into the SVG tag
+  // Generate a unique ID for this flag instance to avoid style conflicts
+  const uniqueId = `vue-flagpack-${code.toLowerCase()}-${size}-${Math.random().toString(36).substr(2, 9)}`;
+
+  // Process SVG content to add proper styling with scoped class
+  // Insert style attributes into the SVG tag with unique identifier
   const processedSvgContent = svgContent.replace(
     /<svg([^>]*)>/,
-    '<svg$1 style="display:block;width:100%;height:100%">'
+    `<svg$1 class="${uniqueId}-svg" style="display:block;width:100%;height:100%;max-width:100%;max-height:100%">`
   );
 
-  // Create inner wrapper for SVG
+  // Create inner wrapper for SVG with scoped styles
   const svgWrapper = h('div', {
+    class: `${uniqueId}-wrapper`,
     style: {
       width: '100%',
       height: '100%',
       display: 'block',
       lineHeight: '0', // Prevent extra spacing
+      overflow: 'hidden', // Prevent overflow
     },
     innerHTML: processedSvgContent,
   });
