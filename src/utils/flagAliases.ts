@@ -18,11 +18,7 @@ export const FLAG_ALIASES: FlagAliasMap = {
   'GLOBE': '001',
   'GLOBAL': '001',
   'WORLD': '001',
-  'INTERNATIONAL': '001',
-
-  // UK aliases to GB (Great Britain - Union Jack flag)
-  // Note: GB is not in the standard flagpack but can be added as a custom flag
-  'UK': 'GB'
+  'INTERNATIONAL': '001'
 };
 
 /**
