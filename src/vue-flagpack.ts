@@ -5,6 +5,8 @@ import Flag from './Flag.vue'
 
 // Export utilities
 export { isoToAlpha2 as isoToCountryCode, isValidIsoCode } from './utils/isoToAlpha2'
+export { resolveFlagAlias, FLAG_ALIASES } from './utils/flagAliases'
+export type { FlagAliasMap } from './utils/flagAliases'
 
 // Export factory function
 export { default as createFlagComponent } from './createFlagComponent'

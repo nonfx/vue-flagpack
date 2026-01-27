@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Flag Alias Test</title>
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      padding: 2rem;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    .flag-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 2rem;
+      margin-top: 2rem;
+    }
+    .flag-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 1rem;
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      background: #f9f9f9;
+    }
+    .flag-label {
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: #333;
+    }
+    .success {
+      color: #22c55e;
+      font-weight: 600;
+    }
+    .error {
+      color: #ef4444;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <h1>Vue Flagpack - Flag Alias System Test</h1>
+    <p>Testing that all globe aliases (Earth, Globe, Global, World, International) resolve to the same flag as 001:</p>
+    
+    <div class="flag-container">
+      <div class="flag-item">
+        <flag code="001" size="large"></flag>
+        <span class="flag-label">001 (canonical)</span>
+      </div>
+      
+      <div class="flag-item">
+        <flag code="Earth" size="large"></flag>
+        <span class="flag-label">Earth (alias)</span>
+      </div>
+      
+      <div class="flag-item">
+        <flag code="Globe" size="large"></flag>
+        <span class="flag-label">Globe (alias)</span>
+      </div>
+      
+      <div class="flag-item">
+        <flag code="Global" size="large"></flag>
+        <span class="flag-label">Global (alias)</span>
+      </div>
+      
+      <div class="flag-item">
+        <flag code="World" size="large"></flag>
+        <span class="flag-label">World (alias)</span>
+      </div>
+      
+      <div class="flag-item">
+        <flag code="International" size="large"></flag>
+        <span class="flag-label">International (alias)</span>
+      </div>
+    </div>
+    
+    <h2 style="margin-top: 3rem;">Other Test Flags</h2>
+    <div class="flag-container">
+      <div class="flag-item">
+        <flag code="US" size="large"></flag>
+        <span class="flag-label">US</span>
+      </div>
+      
+      <div class="flag-item">
+        <flag code="GB" size="large"></flag>
+        <span class="flag-label">GB</span>
+      </div>
+      
+      <div class="flag-item">
+        <flag code="APAC" size="large"></flag>
+        <span class="flag-label">APAC</span>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { createApp } from 'https://unpkg.com/vue@3/dist/vue.esm-browser.js'
+    import { VueFlagpack } from './dist/vue-flag-rollup.esm.js'
+    
+    const app = createApp({
+      template: document.getElementById('app').innerHTML
+    })
+    
+    app.use(VueFlagpack)
+    app.mount('#app')
+  </script>
+</body>
+</html>

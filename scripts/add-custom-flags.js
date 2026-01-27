@@ -126,73 +126,13 @@ if (addedCount > 0 && fs.existsSync(INDEX_PATH)) {
   console.log('✅ Updated index.ts\n');
 }
 
-// Handle special case: Create GB.svg if it doesn't exist (copy from 001.svg)
-const gbPath = path.join(CUSTOM_FLAGS_DIR, 'GB.svg');
-const flag001Path = path.join(CUSTOM_FLAGS_DIR, '001.svg');
 
-if (!fs.existsSync(gbPath) && fs.existsSync(flag001Path)) {
-  console.log('🔄 Creating GB.svg (same as 001.svg and Earth.svg)...');
-  fs.copyFileSync(flag001Path, gbPath);
-  console.log('✅ Created GB.svg\n');
-  
-  // Now process GB.svg
-  try {
-    let svgContent = fs.readFileSync(gbPath, 'utf-8');
-    svgContent = svgContent.replace(/<\?xml[^?]*\?>/g, '').trim();
-    
-    const sanitizedCode = 'GB';
-    
-    const processSvgForSize = (svg, sizeName) => {
-      let processedSvg = svg.replace(/id="([^"]+)"/g, `id="$1_${sizeName}"`);
-      processedSvg = processedSvg.replace(/url\(#([^)]+)\)/g, `url(#$1_${sizeName})`);
-      processedSvg = processedSvg
-        .replace(/\\/g, '\\\\')
-        .replace(/`/g, '\\`')
-        .replace(/\$/g, '\\$');
-      return processedSvg;
-    };
-    
-    const svgSmall = processSvgForSize(svgContent, 'small');
-    const svgMedium = processSvgForSize(svgContent, 'medium');
-    const svgLarge = processSvgForSize(svgContent, 'large');
-    
-    const componentCode = `import createFlagComponent from '../createFlagComponent';
-
-const svgSmall = \`${svgSmall}\`;
-
-const svgMedium = \`${svgMedium}\`;
-
-const svgLarge = \`${svgLarge}\`;
-
-export const Flag${sanitizedCode}Small = createFlagComponent('${sanitizedCode}', 'small', svgSmall);
-export const Flag${sanitizedCode}Medium = createFlagComponent('${sanitizedCode}', 'medium', svgMedium);
-export const Flag${sanitizedCode}Large = createFlagComponent('${sanitizedCode}', 'large', svgLarge);
-
-export default Flag${sanitizedCode}Medium;
-`;
-    
-    const componentPath = path.join(OUTPUT_DIR, `Flag${sanitizedCode}.ts`);
-    fs.writeFileSync(componentPath, componentCode, 'utf-8');
-    console.log(`✅ Generated FlagGB.ts`);
-    
-    // Update index.ts
-    if (fs.existsSync(INDEX_PATH)) {
-      let indexContent = fs.readFileSync(INDEX_PATH, 'utf-8');
-      indexContent += `export { FlagGBSmall, FlagGBMedium, FlagGBLarge, default as FlagGB } from './FlagGB';\n`;
-      fs.writeFileSync(INDEX_PATH, indexContent, 'utf-8');
-    }
-    
-  } catch (error) {
-    console.error('❌ Error processing GB.svg:', error.message);
-  }
-}
 
 console.log('═══════════════════════════════════════════');
 console.log('📊 CUSTOM FLAGS SUMMARY');
 console.log('═══════════════════════════════════════════');
-console.log(`✅ Custom flags added: ${addedCount + (fs.existsSync(gbPath) && !customFlagFiles.includes('GB.svg') ? 1 : 0)}`);
+console.log(`✅ Custom flags added: ${addedCount}`);
 console.log(`📁 Output directory: ${OUTPUT_DIR}`);
 console.log('═══════════════════════════════════════════\n');
 
 console.log('🎉 Custom flags added successfully!\n');
-console.log('💡 Note: 001, Earth, and GB all use the same globe icon.\n');
