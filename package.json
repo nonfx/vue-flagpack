@@ -55,12 +55,19 @@
   "homepage": "https://flagpack.xyz",
   "scripts": {
     "dev": "NODE_ENV=development rollup -cw",
+    "dev:full": "npm run generate-flags && npm run add-custom-flags && NODE_ENV=development rollup -cw",
     "clean": "rm -rf dist src/flags",
     "prebuild": "npm run clean && npm run generate-flags && npm run add-custom-flags",
     "build": "NODE_ENV=production rollup -c",
+    "build:watch": "npm run prebuild && NODE_ENV=development rollup -cw",
     "generate-flags": "node scripts/generate-flags.js",
     "add-custom-flags": "node scripts/add-custom-flags.js",
-    "prepublishOnly": "npm run build"
+    "prepublishOnly": "npm run build",
+    "test:app": "npm run build && cd test && npm install && npm run dev",
+    "test:app:quick": "cd test && npm run dev",
+    "test:app:watch": "run-s prebuild test:app:watch:parallel",
+    "test:app:watch:parallel": "run-p dev test:app:dev",
+    "test:app:dev": "cd test && npm install && npm run dev"
   },
   "browserslist": [
     "> 1%",
@@ -76,6 +83,7 @@
     "@vitejs/plugin-vue": "^5.0.0",
     "@vue/compiler-sfc": "^3.4.0",
     "flagpack-core": "^2.1.0",
+    "npm-run-all": "^4.1.5",
     "postcss": "^8.4.0",
     "rollup": "^4.0.0",
     "rollup-plugin-dts": "^6.3.0",

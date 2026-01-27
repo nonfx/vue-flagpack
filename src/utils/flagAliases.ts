@@ -18,7 +18,10 @@ export const FLAG_ALIASES: FlagAliasMap = {
   'GLOBE': '001',
   'GLOBAL': '001',
   'WORLD': '001',
-  'INTERNATIONAL': '001'
+  'INTERNATIONAL': '001',
+
+  // Other specific aliases
+  'UK': 'GB'
 };
 
 /**
